@@ -2,9 +2,9 @@ import os
 import urllib2
 from difflib import SequenceMatcher
 
-URL = ''
+URL = 'http://espn.com'
 THRESHOLD = 1.0  # on a scale of 0 to 1
-EMAIL = ''
+EMAIL = 'jcaine04@gmail.com'
 
 BASEDIR = os.getcwd()
 HTML_PATH = 'html'
@@ -13,6 +13,15 @@ LAST_HTML_PATH = os.path.join(BASEDIR, HTML_PATH, LAST_HTML)
 
 
 def main():
+
+    # create html dir if it does not exist
+    if not os.path.exists(os.path.join(BASEDIR, HTML_PATH)):
+        try:
+            os.makedirs(os.path.join(BASEDIR, HTML_PATH))
+        except Exception as e:
+            print("Unable to create html directory at {1}".format(os.path.join(BASEDIR, HTML_PATH)))
+            print e
+
     html = get_html()
     if os.path.exists(LAST_HTML_PATH):
         last_html = open(LAST_HTML_PATH, 'r').read()
