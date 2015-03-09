@@ -2,9 +2,9 @@ import os
 import urllib2
 from difflib import SequenceMatcher
 
-URL = 'http://espn.com'
+URL = ''
 THRESHOLD = 1.0  # on a scale of 0 to 1
-EMAIL = 'jcaine04@gmail.com'
+EMAIL = ''
 
 BASEDIR = os.getcwd()
 HTML_PATH = 'html'
