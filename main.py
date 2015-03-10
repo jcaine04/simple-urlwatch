@@ -9,6 +9,7 @@ receivers = ['FirstEmail', 'Second Email']
 smtpHost = """SMTP Host Name"""
 smtpPort = 587
 smtpPassword = 'Sender Email Password'
+smtpSubject = 'Simple-URLWatch has detected a change!'
 
 
 #URLs to monitor
@@ -35,7 +36,7 @@ def main():
             print("Unable to create html directory at {1}".format(os.path.join(BASEDIR, HTML_PATH)))
             print e
 
-    MESSAGE = 'The following URLS have changed \n'
+    MESSAGE = 'Subject: %s\n\nThe following URLS have changed \n' %(smtpSubject)
 
     for urlID, url in URLS.items():
         LAST_HTML = urlID + '.html'
