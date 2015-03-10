@@ -10,18 +10,23 @@ smtpHost = """SMTP Host Name"""
 smtpPort = 587
 smtpPassword = 'Sender Email Password'
 
-URL = 'http://espn.com'
-MESSAGE = 'The URL {0} has changed'.format(URL)
+
+#URLs to monitor
+URLS = {
+    '1':'http://espn.com', 
+    '2':'http://www.reddit.com/new/',
+    '3':'http://www.google.com'
+}
+
+
+
 THRESHOLD = 1.0  # on a scale of 0 to 1
 
 BASEDIR = os.getcwd()
 HTML_PATH = 'html'
-LAST_HTML = 'last.html'
-LAST_HTML_PATH = os.path.join(BASEDIR, HTML_PATH, LAST_HTML)
-
+notifySender = False
 
 def main():
-
     # create html dir if it does not exist
     if not os.path.exists(os.path.join(BASEDIR, HTML_PATH)):
         try:
@@ -30,21 +35,32 @@ def main():
             print("Unable to create html directory at {1}".format(os.path.join(BASEDIR, HTML_PATH)))
             print e
 
-    html = get_html()
-    if os.path.exists(LAST_HTML_PATH):
-        last_html = open(LAST_HTML_PATH, 'r').read()
-        score = get_score(html, last_html)
+    MESSAGE = 'The following URLS have changed \n'
 
-        if score < THRESHOLD:
-            notify()
+    for urlID, url in URLS.items():
+        LAST_HTML = urlID + '.html'
+        LAST_HTML_PATH = os.path.join(BASEDIR, HTML_PATH, LAST_HTML)
+        
+        html = get_html(url)
+        if os.path.exists(LAST_HTML_PATH):
+            last_html = open(LAST_HTML_PATH, 'r').read()
+            score = get_score(html, last_html)
 
-        write_html(html)
-    else:
-        write_html(html)
+            if score < THRESHOLD:
+                MESSAGE += url +'\n'
+                notifySender = True
+                #print MESSAGE
+
+            write_html(html, LAST_HTML_PATH)
+        else:
+            write_html(html, LAST_HTML_PATH)
+
+    if notifySender == True:
+        notify(MESSAGE)
 
 
-def notify():
-
+def notify(MESSAGE):
+    print MESSAGE
     try:
         smtpObj = smtplib.SMTP(smtpHost, smtpPort)
         smtpObj.login(smtpSender, smtpPassword)
@@ -65,17 +81,17 @@ def get_score(html, last_html):
     return score
 
 
-def get_html():
+def get_html(url):
     try:
-        response = urllib2.urlopen(URL)
+        response = urllib2.urlopen(url)
     except Exception as e:
-        print 'Unable to open URL: ' + URL
+        print 'Unable to open URL: ' + url
         print e
         exit(1)
     html = response.read()
     return html
 
-def write_html(html):
+def write_html(html, LAST_HTML_PATH):
     with open(LAST_HTML_PATH, 'wb') as f:
         f.write(html)
 
