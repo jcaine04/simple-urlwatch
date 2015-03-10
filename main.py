@@ -1,10 +1,18 @@
 import os
 import urllib2
+import smtplib
 from difflib import SequenceMatcher
 
+#SMTP Configuration
+smtpSender = """Sender Email Account""" 
+receivers = ['FirstEmail', 'Second Email']
+smtpHost = """SMTP Host Name"""
+smtpPort = 587
+smtpPassword = 'Sender Email Password'
+
 URL = 'http://espn.com'
+MESSAGE = 'The URL {0} has changed'.format(URL)
 THRESHOLD = 1.0  # on a scale of 0 to 1
-EMAIL = 'jcaine04@gmail.com'
 
 BASEDIR = os.getcwd()
 HTML_PATH = 'html'
@@ -28,16 +36,27 @@ def main():
         score = get_score(html, last_html)
 
         if score < THRESHOLD:
-            # notify
-            notify(EMAIL, score)
+            notify()
 
         write_html(html)
     else:
         write_html(html)
 
 
-def notify(email, score):
-    print("Threshold of {0} has been surpassed. Current score: {1}. Emailing {2}!".format(THRESHOLD, score, email))
+def notify():
+
+    try:
+        smtpObj = smtplib.SMTP(smtpHost, smtpPort)
+        smtpObj.login(smtpSender, smtpPassword)
+        smtpObj.sendmail(smtpSender, receivers, MESSAGE)         
+        print "Successfully sent email"
+    except SMTPException:
+        print "Error: unable to send email"
+
+def get_score(html, last_html):
+    sm = SequenceMatcher(None, html, last_html)
+    score = sm.ratio()
+    return score
 
 
 def get_score(html, last_html):
